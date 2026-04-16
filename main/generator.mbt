@@ -284,10 +284,7 @@ fn infer_openapi_content_type(openapi_spec_raw : String) -> String {
   let trimmed = openapi_spec_raw.trim()
   if trimmed.has_prefix("{") || trimmed.has_prefix("[") {
     "application/json"
-  } else if trimmed.has_prefix("openapi:") ||
-    trimmed.has_prefix("---") ||
-    trimmed.has_prefix("#") ||
-    trimmed.contains("\nopenapi:") {
+  } else if trimmed.contains("openapi:") {
     "application/yaml"
   } else {
     "text/plain; charset=utf-8"
@@ -304,10 +301,35 @@ fn escape_moon_string(raw : String) -> String {
       '\n' => builder.write_string("\\n")
       '\r' => builder.write_string("\\r")
       '\t' => builder.write_string("\\t")
-      _ => builder.write_char(ch)
+      _ => {
+        let code = ch.to_int()
+        if code >= 0 && code < 32 {
+          builder.write_string("\\u00")
+          builder.write_string(to_hex_byte(code))
+        } else {
+          builder.write_char(ch)
+        }
+      }
     }
   }
   builder.to_string()
+}
+
+///|
+fn to_hex_byte(value : Int) -> String {
+  let builder = StringBuilder::new()
+  builder.write_char(to_hex_digit(value / 16))
+  builder.write_char(to_hex_digit(value % 16))
+  builder.to_string()
+}
+
+///|
+fn to_hex_digit(value : Int) -> Char {
+  if value < 10 {
+    (value + '0'.to_int()).unsafe_to_char()
+  } else {
+    (value - 10 + 'a'.to_int()).unsafe_to_char()
+  }
 }
 
 ///|
