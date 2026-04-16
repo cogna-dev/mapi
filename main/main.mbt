@@ -44,7 +44,7 @@ fn run_command(args : Array[String], mode : CommandMode) -> Unit {
         }
       }
       let module_name = infer_module_name(config.output_dir)
-      let files = generate_project(ir, module_name)
+      let files = generate_project(ir, module_name, spec)
       write_project(files, config.output_dir, mode == Generate) catch {
         err => fail_with_message("Failed to write project: ", debug_string(err))
       }

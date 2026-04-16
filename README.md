@@ -40,6 +40,7 @@ Whether you're scaffolding a greenfield service from an OpenAPI contract, evolvi
 - **Host-adapter architecture** — the runtime core (`lib/`) is completely decoupled from I/O; any execution environment (Bun, Node, Deno, native Wasm) can be plugged in by implementing a thin host adapter
 - **Type-safe HTTP primitives** — `HttpMethod`, `RequestEnvelope`, `ResponseEnvelope`, and a precise typed error hierarchy (`AppError`, `DecodeError`) mean routing mistakes are caught at compile time, not at runtime
 - **In-memory test host** — `InMemoryHost` lets you drive your full routing and handler stack in unit tests without spinning up a real server or making network calls
+- **Built-in API docs routes** — generated projects automatically expose Swagger UI at `/docs`, ReDoc at `/docs/redoc`, and the raw OpenAPI document at `/docs/openapi`
 - **Five focused CLI commands** — `init`, `generate`, `check`, `diff`, `doctor` — each doing exactly one thing, composable in scripts and CI pipelines
 
 ---
