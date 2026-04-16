@@ -55,7 +55,7 @@ Or add to your `moon.mod.json` directly:
 ```json
 {
   "deps": {
-    "cogna-dev/mapi": "0.1.0"
+    "cogna-dev/mapi": "0.1.1"
   }
 }
 ```

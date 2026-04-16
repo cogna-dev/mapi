@@ -275,6 +275,7 @@ fn response_type_from_response(
   }
 }
 
+///|
 fn schema_or_ref_to_type(
   schema_or_ref : @openapi.SchemaOrRef,
   fallback_name : String,

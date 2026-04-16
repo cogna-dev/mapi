@@ -32,9 +32,9 @@ fn generate_moon_mod(module_name : String) -> String {
   builder.write_string("  \"name\": \"")
   builder.write_string(module_name)
   builder.write_string("\",\n")
-  builder.write_string("  \"version\": \"0.1.0\",\n")
+  builder.write_string("  \"version\": \"0.1.1\",\n")
   builder.write_string("  \"deps\": {\n")
-  builder.write_string("    \"cogna-dev/mapi\": \"0.1.0\"\n")
+  builder.write_string("    \"cogna-dev/mapi\": \"0.1.1\"\n")
   builder.write_string("  }\n")
   builder.write_string("}\n")
   builder.to_string()
@@ -246,12 +246,16 @@ fn generate_client_file(ir : ApiIR) -> String {
   builder.write_string("pub fn ApiClient::new(\n")
   builder.write_string("  transport : ApiTransport,\n")
   builder.write_string("  base_path~ : String = \"\",\n")
-  builder.write_string("  default_headers~ : Map[String, String] = Map::new(),\n")
+  builder.write_string(
+    "  default_headers~ : Map[String, String] = Map::new(),\n",
+  )
   builder.write_string(") -> ApiClient {\n")
   builder.write_string("  { transport, base_path, default_headers }\n")
   builder.write_string("}\n\n")
   builder.write_string("///|\n")
-  builder.write_string("fn copy_headers(source : Map[String, String]) -> Map[String, String] {\n")
+  builder.write_string(
+    "fn copy_headers(source : Map[String, String]) -> Map[String, String] {\n",
+  )
   builder.write_string("  let headers = Map::new()\n")
   builder.write_string("  for key, value in source {\n")
   builder.write_string("    headers[key] = value\n")
@@ -259,21 +263,29 @@ fn generate_client_file(ir : ApiIR) -> String {
   builder.write_string("  headers\n")
   builder.write_string("}\n\n")
   builder.write_string("///|\n")
-  builder.write_string("fn join_paths(base_path : String, route_path : String) -> String {\n")
+  builder.write_string(
+    "fn join_paths(base_path : String, route_path : String) -> String {\n",
+  )
   builder.write_string("  if base_path.is_empty() {\n")
   builder.write_string("    route_path\n")
   builder.write_string("  } else if route_path.is_empty() {\n")
   builder.write_string("    base_path\n")
-  builder.write_string("  } else if base_path.has_suffix(\"/\") && route_path.has_prefix(\"/\") {\n")
+  builder.write_string(
+    "  } else if base_path.has_suffix(\"/\") && route_path.has_prefix(\"/\") {\n",
+  )
   builder.write_string("    base_path + route_path.sub(start=1)\n")
-  builder.write_string("  } else if !base_path.has_suffix(\"/\") && !route_path.has_prefix(\"/\") {\n")
+  builder.write_string(
+    "  } else if !base_path.has_suffix(\"/\") && !route_path.has_prefix(\"/\") {\n",
+  )
   builder.write_string("    base_path + \"/\" + route_path\n")
   builder.write_string("  } else {\n")
   builder.write_string("    base_path + route_path\n")
   builder.write_string("  }\n")
   builder.write_string("}\n\n")
   builder.write_string("///|\n")
-  builder.write_string("fn replace_path_param(path : String, param_name : String, value : String) -> String {\n")
+  builder.write_string(
+    "fn replace_path_param(path : String, param_name : String, value : String) -> String {\n",
+  )
   builder.write_string("  let token = \"{\" + param_name + \"}\"\n")
   builder.write_string("  let parts = path.split(token).to_array()\n")
   builder.write_string("  if parts.length() <= 1 {\n")
@@ -283,7 +295,9 @@ fn generate_client_file(ir : ApiIR) -> String {
   builder.write_string("  }\n")
   builder.write_string("}\n\n")
   builder.write_string("///|\n")
-  builder.write_string("fn app_error_from_status(status : Int) -> @lib.AppError {\n")
+  builder.write_string(
+    "fn app_error_from_status(status : Int) -> @lib.AppError {\n",
+  )
   builder.write_string("  match status {\n")
   builder.write_string(
     "    400 => @lib.AppError::BadRequest(\"Remote service returned 400\")\n",
@@ -305,7 +319,10 @@ fn generate_client_file(ir : ApiIR) -> String {
 }
 
 ///|
-fn write_client_method(builder : StringBuilder, operation : OperationIR) -> Unit {
+fn write_client_method(
+  builder : StringBuilder,
+  operation : OperationIR,
+) -> Unit {
   let input_name = operation_input_name(operation)
   let response_name = operation_response_name(operation)
   builder.write_string("///|\n")
@@ -320,7 +337,9 @@ fn write_client_method(builder : StringBuilder, operation : OperationIR) -> Unit
   builder.write_string(response_name)
   builder.write_string(", @lib.AppError] {\n")
   builder.write_string("  let headers = copy_headers(self.default_headers)\n")
-  builder.write_string("  let query : Map[String, Array[String]] = Map::new()\n")
+  builder.write_string(
+    "  let query : Map[String, Array[String]] = Map::new()\n",
+  )
   builder.write_string("  let mut route_path = \"")
   builder.write_string(operation.path)
   builder.write_string("\"\n")
@@ -328,7 +347,9 @@ fn write_client_method(builder : StringBuilder, operation : OperationIR) -> Unit
     builder.write_string("  route_path = replace_path_param(route_path, \"")
     builder.write_string(path_param.name)
     builder.write_string("\", ")
-    builder.write_string(stringify_value("input." + path_param.name, path_param.moonbit_type))
+    builder.write_string(
+      stringify_value("input." + path_param.name, path_param.moonbit_type),
+    )
     builder.write_string(")\n")
   }
   for query_param in operation.query_params {
@@ -355,14 +376,14 @@ fn write_client_method(builder : StringBuilder, operation : OperationIR) -> Unit
   }
   match operation.request_body_type {
     Some(_) => {
-      builder.write_string("  headers[\"content-type\"] = \"application/json\"\n")
+      builder.write_string(
+        "  headers[\"content-type\"] = \"application/json\"\n",
+      )
       builder.write_string(
         "  let body = Some(@utf8.encode(input.body.to_json().stringify()))\n",
       )
     }
-    None => {
-      builder.write_string("  let body : Bytes? = None\n")
-    }
+    None => builder.write_string("  let body : Bytes? = None\n")
   }
   builder.write_string("  let req : @lib.RequestEnvelope = {\n")
   builder.write_string("    http_method: @lib.HttpMethod::")
@@ -382,14 +403,18 @@ fn write_client_method(builder : StringBuilder, operation : OperationIR) -> Unit
       builder.write_string("  if response.status != ")
       builder.write_string(status_code)
       builder.write_string(" {\n")
-      builder.write_string("    return Err(app_error_from_status(response.status))\n")
+      builder.write_string(
+        "    return Err(app_error_from_status(response.status))\n",
+      )
       builder.write_string("  }\n")
     }
     None => {
       builder.write_string(
         "  if response.status < 200 || response.status >= 300 {\n",
       )
-      builder.write_string("    return Err(app_error_from_status(response.status))\n")
+      builder.write_string(
+        "    return Err(app_error_from_status(response.status))\n",
+      )
       builder.write_string("  }\n")
     }
   }
