@@ -1,0 +1,3 @@
+[submodule ".agents/skills/moonbit"]
+	path = .agents/skills/moonbit
+	url = https://github.com/cogna-dev/moonbit-skill

@@ -1,0 +1,24 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MoonBit
+        uses: cogna-dev/moonbit-actions/setup@v0
+
+      - name: Publish to mooncakes.io
+        uses: cogna-dev/moonbit-actions/publish@v0
+        with:
+          token: ${{ secrets.MOONCAKES_TOKEN }}
