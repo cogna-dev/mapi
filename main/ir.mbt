@@ -37,6 +37,7 @@ pub(all) struct OperationIR {
   query_params : Array[ParamIR]
   request_body_type : String?
   response_type : String
+  success_status : String?
 }
 
 ///|

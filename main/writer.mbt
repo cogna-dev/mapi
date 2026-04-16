@@ -46,7 +46,7 @@ fn write_state(
   let ops_json = "[" + operation_ids.join(", ") + "]"
   let builder = StringBuilder::new()
   builder.write_string("{\n")
-  builder.write_string("  \"cli_version\": \"0.1.0\",\n")
+  builder.write_string("  \"cli_version\": \"0.1.1\",\n")
   builder.write_string("  \"codegen_schema_version\": \"1\",\n")
   builder.write_string("  \"spec_path\": \"")
   builder.write_string(spec_path)
