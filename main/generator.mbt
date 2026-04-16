@@ -313,9 +313,10 @@ fn escape_moon_string(raw : String) -> String {
       '\t' => builder.write_string("\\t")
       _ => {
         let code = ch.to_int()
-        if code < 32 {
-          builder.write_string("\\u00")
+        if code < 32 || code == 127 {
+          builder.write_string("\\u{")
           builder.write_string(to_hex_byte(code))
+          builder.write_string("}")
         } else {
           builder.write_char(ch)
         }
