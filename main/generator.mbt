@@ -284,8 +284,15 @@ fn infer_openapi_content_type(openapi_spec_raw : String) -> String {
   let trimmed = openapi_spec_raw.trim()
   if trimmed.has_prefix("{") || trimmed.has_prefix("[") {
     "application/json"
-  } else {
+  } else if trimmed.has_prefix("openapi:") ||
+    trimmed.has_prefix("---") ||
+    trimmed.has_prefix("#") ||
+    trimmed.contains("\nopenapi:") {
     "application/yaml"
+  } else if trimmed.is_empty() {
+    "text/plain; charset=utf-8"
+  } else {
+    "text/plain; charset=utf-8"
   }
 }
 
