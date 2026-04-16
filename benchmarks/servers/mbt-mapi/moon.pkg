@@ -1,0 +1,15 @@
+import {
+  "cogna-dev/mapi/lib" @lib,
+  "moonbitlang/async",
+  "moonbitlang/async/http" @http,
+  "moonbitlang/async/socket" @socket,
+  "moonbitlang/core/encoding/utf8" @utf8,
+  "moonbitlang/core/json" @json,
+  "moonbitlang/core/strconv" @strconv,
+}
+
+supported_targets = "+native"
+
+options(
+  "is-main": true,
+)

@@ -59,23 +59,25 @@ passed at 100 % for the latest run.
 
 | Server        |       RPS | avg (ms) | p50 (ms) | p90 (ms) | p95 (ms) | max (ms) | Checks |
 |---------------|----------:|---------:|---------:|---------:|---------:|---------:|--------|
-| **go-gin**    | **3 431** | **3.97** | **0.69** |    14.22 |    20.39 |    57.77 | 100 %  |
-| rust-axum     |   3 268   |     5.46 |     1.34 |    18.03 |    24.97 |    68.72 | 100 %  |
-| mbt-mapi      |     504   |   173.17 |     2.04 |   806.06 | 1 124.09 | 1 528.30 | 100 %  |
+| **go-gin**    | **3 392** | **4.31** | **0.74** |    16.39 |    22.59 |    59.91 | 100 %  |
+| rust-axum     |   3 213   |     6.01 |     1.52 |    19.03 |    25.67 |    94.23 | 100 %  |
+| mbt-mapi      |     467   |   188.90 |     2.18 |   869.01 | 1 113.84 | 2 780.15 | 100 %  |
 
 Latency figures cover **all four endpoints** (incl. the intentional 404).
 Go-gin still leads on throughput and median latency; rust-axum remains close.
-The native `mbt-mapi` benchmark server now runs the real mapi pipeline on the
-MoonBit native backend, but under this 100-VU workload it shows much heavier
-tail latency than the Go and Rust servers.
+The standalone native `mbt-mapi` benchmark server now runs the real mapi
+pipeline from its own benchmark project under `benchmarks/servers/mbt-mapi/`,
+but under this 100-VU workload it still shows much heavier tail latency than
+the Go and Rust servers.
 
 ## mbt-mapi architecture note
 
 The `mbt-mapi` server runs the actual mapi runtime:
 
-1. `examples/petstore/src/benchmark_native_host` is compiled with `moon build src/benchmark_native_host --target native --release`
-2. The native host uses `moonbitlang/async/http` to accept HTTP requests on port 8083
-3. Each request is converted into a `RequestEnvelope` and dispatched through MoonBit `App::serve()`
-4. `examples/petstore/src/benchmark_handlers` provides a benchmark-only in-memory pet store with semantics aligned to the Go/Rust servers
+1. `benchmarks/servers/mbt-mapi/` is a standalone MoonBit module with its own `moon.mod.json`
+2. It depends on the root `cogna-dev/mapi` module via a local path dependency
+3. The native host uses `moonbitlang/async/http` to accept HTTP requests on port 8083
+4. Each request is converted into a `RequestEnvelope` and dispatched through MoonBit `App::serve()`
+5. The benchmark server keeps its own in-memory pet store so benchmark semantics stay aligned with the Go/Rust servers without coupling to `examples/`
 
-This benchmark now measures the MoonBit **native** backend plus the `moonbitlang/async/http` host layer, not the old Bun/JS path.
+This benchmark now measures the MoonBit **native** backend plus the `moonbitlang/async/http` host layer from a standalone benchmark project, not the old Bun/JS path and not the `examples/` tree.

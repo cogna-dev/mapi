@@ -258,7 +258,7 @@ The runtime core has **zero I/O dependencies**. All platform interaction is dele
 
 Throughput comparison across three Petstore implementations (100 VUs, 30 s, 4 endpoints per iteration).
 
-> The `mbt-mapi` benchmark server now builds `examples/petstore/src/benchmark_native_host` with `moon build --target native --release` and serves requests through `moonbitlang/async/http`. Every request still flows through the real MoonBit `App::serve()` pipeline; the benchmark-specific handler package only swaps in an in-memory pet store whose semantics match the Go and Rust benchmark servers.
+> The `mbt-mapi` benchmark server is now a standalone MoonBit project under `benchmarks/servers/mbt-mapi/`, built with `moon build . --target native --release`. It depends on `cogna-dev/mapi` via a local path dependency, serves requests through `moonbitlang/async/http`, and routes every request through the real `App::serve()` pipeline while keeping benchmark-only state local to that server project.
 
 ### Hardware
 
@@ -272,21 +272,21 @@ Throughput comparison across three Petstore implementations (100 VUs, 30 s, 4 en
 
 | Server        |       RPS | avg (ms) | p50 (ms) | p90 (ms) | p95 (ms) | max (ms) | Checks |
 |---------------|----------:|---------:|---------:|---------:|---------:|---------:|--------|
-| **go-gin**    | **3 431** | **3.97** | **0.69** |    14.22 |    20.39 |    57.77 | 100 %  |
-| rust-axum     |   3 268   |     5.46 |     1.34 |    18.03 |    24.97 |    68.72 | 100 %  |
-| mbt-mapi      |     504   |   173.17 |     2.04 |   806.06 | 1 124.09 | 1 528.30 | 100 %  |
+| **go-gin**    | **3 392** | **4.31** | **0.74** |    16.39 |    22.59 |    59.91 | 100 %  |
+| rust-axum     |   3 213   |     6.01 |     1.52 |    19.03 |    25.67 |    94.23 | 100 %  |
+| mbt-mapi      |     467   |   188.90 |     2.18 |   869.01 | 1 113.84 | 2 780.15 | 100 %  |
 
 ### RPS comparison
 
 ```
-  go-gin    ████████████████████████████████▌  3 431
-  rust-axum ██████████████████████████████▌    3 268
-  mbt-mapi  ████▋                                504
+  go-gin    ████████████████████████████████▏  3 392
+  rust-axum ██████████████████████████████▎    3 213
+  mbt-mapi  ████▎                                467
             └─────────┴─────────┴─────────┴──────── RPS
             0       1000      2000      3000    3500
 ```
 
-Go-gin leads on both throughput and latency, with rust-axum still close behind. The native `mbt-mapi` benchmark server now measures MoonBit native code plus the `moonbitlang/async/http` host layer; under this workload its median stays low, but the tail latency is much higher than the Go and Rust implementations.
+Go-gin leads on both throughput and latency, with rust-axum still close behind. The native `mbt-mapi` benchmark server now measures a standalone MoonBit benchmark project plus the `moonbitlang/async/http` host layer; under this workload its median stays low, but the tail latency is still much higher than the Go and Rust implementations.
 
 > Full methodology and raw JSON results: [`benchmarks/`](benchmarks/)
 

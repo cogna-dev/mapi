@@ -29,8 +29,6 @@ interface K6Summary {
   };
 }
 
-const PETSTORE_DIR = join(ROOT, "../examples/petstore");
-
 const servers: ServerConfig[] = [
   {
     name: "go-gin",
@@ -50,10 +48,8 @@ const servers: ServerConfig[] = [
     name: "mbt-mapi",
     port: 8083,
     dir: join(ROOT, "servers/mbt-mapi"),
-    buildDir: PETSTORE_DIR,
-    startDir: PETSTORE_DIR,
-    buildCmd: ["moon", "build", "src/benchmark_native_host", "--target", "native", "--release"],
-    startCmd: ["moon", "run", "src/benchmark_native_host", "--target", "native", "--release"],
+    buildCmd: ["moon", "build", ".", "--target", "native", "--release"],
+    startCmd: ["moon", "run", ".", "--target", "native", "--release"],
   },
 ];
 
