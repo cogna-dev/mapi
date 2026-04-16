@@ -289,8 +289,6 @@ fn infer_openapi_content_type(openapi_spec_raw : String) -> String {
     trimmed.has_prefix("#") ||
     trimmed.contains("\nopenapi:") {
     "application/yaml"
-  } else if trimmed.is_empty() {
-    "text/plain; charset=utf-8"
   } else {
     "text/plain; charset=utf-8"
   }
