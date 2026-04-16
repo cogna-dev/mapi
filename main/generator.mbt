@@ -284,11 +284,21 @@ fn infer_openapi_content_type(openapi_spec_raw : String) -> String {
   let trimmed = openapi_spec_raw.trim()
   if trimmed.has_prefix("{") || trimmed.has_prefix("[") {
     "application/json"
-  } else if trimmed.contains("openapi:") {
+  } else if has_openapi_yaml_key(openapi_spec_raw) {
     "application/yaml"
   } else {
     "text/plain; charset=utf-8"
   }
+}
+
+///|
+fn has_openapi_yaml_key(raw : String) -> Bool {
+  for line in raw.split("\n") {
+    if line.to_string().trim_start().has_prefix("openapi:") {
+      return true
+    }
+  }
+  false
 }
 
 ///|
@@ -303,7 +313,7 @@ fn escape_moon_string(raw : String) -> String {
       '\t' => builder.write_string("\\t")
       _ => {
         let code = ch.to_int()
-        if code >= 0 && code < 32 {
+        if code < 32 {
           builder.write_string("\\u00")
           builder.write_string(to_hex_byte(code))
         } else {
