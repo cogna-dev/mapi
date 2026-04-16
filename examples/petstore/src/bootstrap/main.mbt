@@ -11,4 +11,11 @@ fn main {
   let host = @lib.InMemoryHost::new(app)
   let resp = host.request(@lib.HttpMethod::Get, "/pets", None, None, None)
   println("GET /pets -> " + resp.status.to_string())
+
+  let transport : @generated.ApiTransport = {
+    send: (req) => Ok(app.serve(req)),
+  }
+  let client = @generated.ApiClient::new(transport)
+  let typed_resp = client.list_pets(@generated.ListPetsInput::default())
+  println("typed client list_pets -> " + typed_resp.to_json().stringify())
 }
