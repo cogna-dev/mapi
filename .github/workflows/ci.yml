@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  moonbit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MoonBit
+        uses: cogna-dev/moonbit-actions/setup@v0
+
+      - name: Check
+        run: moon check
+
+      - name: Format
+        run: moon fmt --check
+
+      - name: Build
+        run: moon build
+
+      - name: Test
+        run: moon test
