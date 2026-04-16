@@ -1,0 +1,64 @@
+# Petstore Example — Project Lifecycle
+# Run `just <command>` from this directory.
+
+spec := "specs/petstore.json"
+out  := "."
+
+# Show available commands
+default:
+    @just --list
+
+# Check for type errors and warnings
+check:
+    moon check
+
+# Build all packages
+build:
+    moon build
+
+# Run all tests
+test:
+    moon test
+
+# Run the bootstrap entry point
+run:
+    moon run src/bootstrap
+
+# Format all source files
+fmt:
+    moon fmt
+
+# Check formatting without modifying files
+fmt-check:
+    moon fmt --check
+
+# Remove build artifacts
+clean:
+    moon clean
+
+# (Re-)generate code from the OpenAPI spec
+generate:
+    cd ../.. && moon run main -- generate --spec {{justfile_directory()}}/{{spec}} --project {{justfile_directory()}}/{{out}}
+
+# Initialise generated code from scratch (overwrites src/generated/)
+init-gen:
+    cd ../.. && moon run main -- init --spec {{justfile_directory()}}/{{spec}} --out {{justfile_directory()}}/{{out}}
+
+# Check spec vs project consistency (handler completeness, state freshness)
+mapi-check:
+    cd ../.. && moon run main -- check --project {{justfile_directory()}}
+
+# Show diff between current spec and last generated state
+mapi-diff:
+    cd ../.. && moon run main -- diff --spec {{justfile_directory()}}/{{spec}} --project {{justfile_directory()}}
+
+# Run environment/prerequisite health checks
+mapi-doctor:
+    cd ../.. && moon run main -- doctor --spec {{justfile_directory()}}/{{spec}} --project {{justfile_directory()}}
+
+# Full pipeline: generate → check → test → run
+all: generate check test run
+
+# Show module info
+info:
+    moon info

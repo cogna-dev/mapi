@@ -1,0 +1,9 @@
+import {
+  "cogna-dev/mapi/lib" @lib,
+  "example/petstore/src/generated" @generated,
+  "example/petstore/src/handlers" @handlers,
+}
+
+options(
+  "is-main": true,
+)

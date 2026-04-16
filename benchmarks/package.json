@@ -1,0 +1,11 @@
+{
+  "name": "mapi-benchmarks",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "bench": "bun run run.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

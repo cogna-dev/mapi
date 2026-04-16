@@ -1,0 +1,6 @@
+# MoonBit build artifacts
+_build/
+.mooncakes/
+
+# moapi CLI state
+.moapi/

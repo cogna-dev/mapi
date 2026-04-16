@@ -1,0 +1,34 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build & Deploy to GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.doc.outputs.page-url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and deploy docs
+        id: doc
+        uses: cogna-dev/moonbit-actions/document@v0
+        with:
+          repo-root: '.'
+          deploy: 'true'
+          title: mapi

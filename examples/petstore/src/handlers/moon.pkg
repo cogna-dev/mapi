@@ -1,0 +1,4 @@
+import {
+  "example/petstore/src/generated" @generated,
+  "cogna-dev/mapi/lib" @lib,
+}

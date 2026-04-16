@@ -1,0 +1,17 @@
+# MoonBit build artifacts
+_build/
+.mooncakes/
+
+# moapi CLI state
+.moapi/
+
+# Editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+*.mbti
+
+.mooncakes/

@@ -1,6 +1,10 @@
 {
-  "name": "cogna-dev/moapi",
+  "name": "cogna-dev/mapi",
   "version": "0.1.0",
-  "license": "Apache-2.0",
-  "repository": "https://github.com/cogna-dev/moapi"
+  "deps": {
+    "moonbitlang/x": "0.4.43",
+    "cogna-dev/x": "0.1.0"
+  },
+  "repository": "https://github.com/cogna-dev/mapi",
+  "license": "Apache-2.0"
 }

@@ -1,0 +1,6 @@
+import {
+  "cogna-dev/mapi/lib" @lib,
+  "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8" @utf8,
+  "moonbitlang/core/strconv" @strconv,
+}
