@@ -46,6 +46,17 @@ fn join_paths(base_path : String, route_path : String) -> String {
 }
 
 ///|
+fn replace_path_param(path : String, param_name : String, value : String) -> String {
+  let token = "{" + param_name + "}"
+  let parts = path.split(token).to_array()
+  if parts.length() <= 1 {
+    path
+  } else {
+    parts.join(value)
+  }
+}
+
+///|
 fn app_error_from_status(status : Int) -> @lib.AppError {
   match status {
     400 => @lib.AppError::BadRequest("Remote service returned 400")
@@ -142,9 +153,10 @@ pub fn ApiClient::get_pet_by_id(
   input : GetPetByIdInput,
 ) -> Result[GetPetByIdResponse, @lib.AppError] {
   let headers = copy_headers(self.default_headers)
+  let route_path = replace_path_param("/pets/{id}", "id", input.id.to_string())
   let req : @lib.RequestEnvelope = {
     http_method: @lib.HttpMethod::Get,
-    path: join_paths(self.base_path, "/pets/" + input.id.to_string()),
+    path: join_paths(self.base_path, route_path),
     query: Map::new(),
     headers,
     body: None,
