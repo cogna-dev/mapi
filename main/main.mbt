@@ -43,8 +43,22 @@ fn run_command(args : Array[String], mode : CommandMode) -> Unit {
           { title: "", version: "", schemas: [], operations: [] }
         }
       }
-      let module_name = infer_module_name(config.output_dir)
-      let files = generate_project(ir, module_name)
+      let include_module_manifest = mode == Init
+      let module_name = match resolve_module_name(
+        config.output_dir,
+        include_module_manifest,
+      ) {
+        Ok(name) => name
+        Err(message) => {
+          fail_with_message("Failed to resolve module name: ", message)
+          ""
+        }
+      }
+      let files = generate_project(
+        ir,
+        module_name,
+        include_module_manifest,
+      )
       write_project(files, config.output_dir, mode == Generate) catch {
         err => fail_with_message("Failed to write project: ", debug_string(err))
       }
@@ -152,6 +166,64 @@ fn infer_module_name(output_dir : String) -> String {
   match parts.last() {
     Some(last) => last.to_string()
     None => "generated-api"
+  }
+}
+
+///|
+fn resolve_module_name(
+  output_dir : String,
+  include_module_manifest : Bool,
+) -> Result[String, String] {
+  if include_module_manifest {
+    Ok(infer_module_name(output_dir))
+  } else {
+    read_module_name_from_moon_mod(output_dir)
+  }
+}
+
+///|
+fn read_module_name_from_moon_mod(project_dir : String) -> Result[String, String] {
+  let mod_path = project_dir + "/moon.mod.json"
+  if !@fs.path_exists(mod_path) {
+    return Err("moon.mod.json not found in " + project_dir)
+  }
+  let raw_result = try {
+    Ok(@fs.read_file_to_string(mod_path))
+  } catch {
+    err => Err("cannot read moon.mod.json: " + debug_string(err))
+  }
+  let raw = match raw_result {
+    Ok(value) => value
+    Err(message) => return Err(message)
+  }
+  parse_module_name_from_moon_mod(raw)
+}
+
+///|
+fn parse_module_name_from_moon_mod(raw : String) -> Result[String, String] {
+  let marker = "\"name\""
+  let name_start = match raw.find(marker) {
+    Some(index) => index + marker.length()
+    None => return Err("missing \"name\" field in moon.mod.json")
+  }
+  let after_name = raw[name_start:]
+  let colon_rel = match after_name.find(":") {
+    Some(index) => index + 1
+    None => return Err("invalid \"name\" field in moon.mod.json")
+  }
+  let value = after_name[colon_rel:]
+    .trim()
+    .trim_start(chars="\"")
+    .to_string()
+  let quote_rel = match value.find("\"") {
+    Some(index) => index
+    None => return Err("invalid quoted \"name\" value in moon.mod.json")
+  }
+  let module_name = value[:quote_rel].to_string()
+  if module_name.is_empty() {
+    Err("empty \"name\" value in moon.mod.json")
+  } else {
+    Ok(module_name)
   }
 }
 
