@@ -82,6 +82,11 @@ struct CliConfig {
 }
 
 ///|
+struct MoonModConfig {
+  name : String
+} derive(FromJson)
+
+///|
 fn parse_cli_options(
   args : Array[String],
   mode : CommandMode,
@@ -201,25 +206,13 @@ fn read_module_name_from_moon_mod(project_dir : String) -> Result[String, String
 
 ///|
 fn parse_module_name_from_moon_mod(raw : String) -> Result[String, String] {
-  let marker = "\"name\""
-  let name_start = match raw.find(marker) {
-    Some(index) => index + marker.length()
-    None => return Err("missing \"name\" field in moon.mod.json")
+  let parsed = @json.parse(raw) catch {
+    _ => return Err("moon.mod.json is not valid JSON")
   }
-  let after_name = raw[name_start:]
-  let colon_rel = match after_name.find(":") {
-    Some(index) => index + 1
-    None => return Err("invalid \"name\" field in moon.mod.json")
+  let mod_config : MoonModConfig = @json.from_json(parsed) catch {
+    _ => return Err("missing or invalid \"name\" field in moon.mod.json")
   }
-  let value = after_name[colon_rel:]
-    .trim()
-    .trim_start(chars="\"")
-    .to_string()
-  let quote_rel = match value.find("\"") {
-    Some(index) => index
-    None => return Err("invalid quoted \"name\" value in moon.mod.json")
-  }
-  let module_name = value[:quote_rel].to_string()
+  let module_name = mod_config.name.trim().to_string()
   if module_name.is_empty() {
     Err("empty \"name\" value in moon.mod.json")
   } else {
