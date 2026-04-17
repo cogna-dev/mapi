@@ -1,6 +1,6 @@
 {
   "name": "cogna-dev/mapi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "deps": {
     "moonbitlang/x": "0.4.43",
     "cogna-dev/x": "0.1.0"

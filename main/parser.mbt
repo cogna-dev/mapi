@@ -160,6 +160,7 @@ fn translate_operation(
       None => []
     },
   )
+  let (response_type, success_status) = translate_response(op.responses)
   {
     operation_id,
     snake_id: snake_case(operation_id),
@@ -168,7 +169,8 @@ fn translate_operation(
     path_params,
     query_params,
     request_body_type: translate_request_body(op.request_body),
-    response_type: translate_response_type(op.responses),
+    response_type,
+    success_status,
   }
 }
 
@@ -225,21 +227,39 @@ fn translate_request_body(
 }
 
 ///|
-fn translate_response_type(
+fn translate_response(
   responses : @openapi.Responses,
-) -> String raise ParseError {
-  let response_or_ref = match responses.by_status.get("200") {
-    Some(r) => Some(r)
-    None =>
-      match responses.by_status.get("201") {
-        Some(r) => Some(r)
-        None => responses.default
+) -> (String, String?) raise ParseError {
+  let preferred_statuses = ["200", "201", "202", "203", "204", "205", "206"]
+  for status in preferred_statuses {
+    match responses.by_status.get(status) {
+      Some(response_or_ref) => {
+        let response_type = response_type_from_response(response_or_ref)
+        return (response_type, Some(status))
       }
+      None => ()
+    }
   }
+  for status, response_or_ref in responses.by_status {
+    if status.has_prefix("2") {
+      let response_type = response_type_from_response(response_or_ref)
+      return (response_type, Some(status))
+    }
+  }
+  match responses.default {
+    Some(response_or_ref) =>
+      (response_type_from_response(response_or_ref), None)
+    None => ("Unit", None)
+  }
+}
+
+///|
+fn response_type_from_response(
+  response_or_ref : @openapi.ResponseOrRef,
+) -> String raise ParseError {
   match response_or_ref {
-    None => "Unit"
-    Some(Ref(_)) => "Unit"
-    Some(ResponseValue(r)) =>
+    Ref(_) => "Unit"
+    ResponseValue(r) =>
       match r.content {
         None => "Unit"
         Some(content) =>
