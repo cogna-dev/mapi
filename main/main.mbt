@@ -205,7 +205,7 @@ fn parse_module_name_from_moon_mod(raw : String) -> Result[String, String] {
   let mod_config : MoonModConfig = @json.from_json(parsed) catch {
     _ => return Err("missing or invalid \"name\" field in moon.mod.json")
   }
-  let module_name = mod_config.name.trim()
+  let module_name = mod_config.name.trim().to_string()
   if module_name.is_empty() {
     Err("empty \"name\" value in moon.mod.json")
   } else if contains_whitespace(module_name) {
@@ -217,10 +217,10 @@ fn parse_module_name_from_moon_mod(raw : String) -> Result[String, String] {
 
 ///|
 fn contains_whitespace(value : String) -> Bool {
-  value.find(" ").is_some() ||
-  value.find("\t").is_some() ||
-  value.find("\n").is_some() ||
-  value.find("\r").is_some()
+  value.find(" ") is Some(_) ||
+  value.find("\t") is Some(_) ||
+  value.find("\n") is Some(_) ||
+  value.find("\r") is Some(_)
 }
 
 ///|
