@@ -218,9 +218,19 @@ fn parse_module_name_from_moon_mod(raw : String) -> Result[String, String] {
   let module_name = mod_config.name.trim()
   if module_name.is_empty() {
     Err("empty \"name\" value in moon.mod.json")
+  } else if contains_whitespace(module_name) {
+    Err("invalid \"name\" value in moon.mod.json: contains whitespace")
   } else {
     Ok(module_name)
   }
+}
+
+///|
+fn contains_whitespace(value : String) -> Bool {
+  value.find(" ").is_some() ||
+  value.find("\t").is_some() ||
+  value.find("\n").is_some() ||
+  value.find("\r").is_some()
 }
 
 ///|
