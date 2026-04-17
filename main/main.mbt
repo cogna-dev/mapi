@@ -44,23 +44,26 @@ fn run_command(args : Array[String], mode : CommandMode) -> Unit {
         }
       }
       let include_module_manifest = mode == Init
-      let module_name = match resolve_module_name(
+      match resolve_module_name(
         config.output_dir,
         include_module_manifest,
       ) {
-        Ok(name) => name
+        Ok(module_name) => {
+          let files = generate_project(
+            ir,
+            module_name,
+            include_module_manifest,
+          )
+          write_project(files, config.output_dir, mode == Generate) catch {
+            err => fail_with_message(
+              "Failed to write project: ",
+              debug_string(err),
+            )
+          }
+        }
         Err(message) => {
           fail_with_message("Failed to resolve module name: ", message)
-          ""
         }
-      }
-      let files = generate_project(
-        ir,
-        module_name,
-        include_module_manifest,
-      )
-      write_project(files, config.output_dir, mode == Generate) catch {
-        err => fail_with_message("Failed to write project: ", debug_string(err))
       }
       write_state(ir, config.spec_path, config.output_dir) catch {
         err => fail_with_message("Failed to write state: ", debug_string(err))
