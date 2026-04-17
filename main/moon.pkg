@@ -1,5 +1,6 @@
 import {
   "moonbitlang/core/debug" @debug,
+  "moonbitlang/core/json" @json,
   "moonbitlang/x/fs" @fs,
   "moonbitlang/x/sys" @sys,
   "cogna-dev/x/openapi" @openapi,

@@ -43,10 +43,17 @@ fn run_command(args : Array[String], mode : CommandMode) -> Unit {
           { title: "", version: "", schemas: [], operations: [] }
         }
       }
-      let module_name = infer_module_name(config.output_dir)
-      let files = generate_project(ir, module_name)
-      write_project(files, config.output_dir, mode == Generate) catch {
-        err => fail_with_message("Failed to write project: ", debug_string(err))
+      let include_module_manifest = mode == Init
+      match resolve_module_name(config.output_dir, include_module_manifest) {
+        Ok(module_name) => {
+          let files = generate_project(ir, module_name, include_module_manifest)
+          write_project(files, config.output_dir, mode == Generate) catch {
+            err =>
+              fail_with_message("Failed to write project: ", debug_string(err))
+          }
+        }
+        Err(message) =>
+          fail_with_message("Failed to resolve module name: ", message)
       }
       write_state(ir, config.spec_path, config.output_dir) catch {
         err => fail_with_message("Failed to write state: ", debug_string(err))
@@ -66,6 +73,11 @@ struct CliConfig {
   spec_path : String
   output_dir : String
 }
+
+///|
+struct MoonModConfig {
+  name : String
+} derive(FromJson)
 
 ///|
 fn parse_cli_options(
@@ -153,6 +165,62 @@ fn infer_module_name(output_dir : String) -> String {
     Some(last) => last.to_string()
     None => "generated-api"
   }
+}
+
+///|
+fn resolve_module_name(
+  output_dir : String,
+  include_module_manifest : Bool,
+) -> Result[String, String] {
+  if include_module_manifest {
+    Ok(infer_module_name(output_dir))
+  } else {
+    read_module_name_from_moon_mod(output_dir)
+  }
+}
+
+///|
+fn read_module_name_from_moon_mod(
+  project_dir : String,
+) -> Result[String, String] {
+  let mod_path = project_dir + "/moon.mod.json"
+  if !@fs.path_exists(mod_path) {
+    return Err("moon.mod.json not found in " + project_dir)
+  }
+  let raw_result = Ok(@fs.read_file_to_string(mod_path)) catch {
+    err => Err("cannot read moon.mod.json: " + debug_string(err))
+  }
+  let raw = match raw_result {
+    Ok(value) => value
+    Err(message) => return Err(message)
+  }
+  parse_module_name_from_moon_mod(raw)
+}
+
+///|
+fn parse_module_name_from_moon_mod(raw : String) -> Result[String, String] {
+  let parsed = @json.parse(raw) catch {
+    _ => return Err("moon.mod.json is not valid JSON")
+  }
+  let mod_config : MoonModConfig = @json.from_json(parsed) catch {
+    _ => return Err("missing or invalid \"name\" field in moon.mod.json")
+  }
+  let module_name = mod_config.name.trim().to_string()
+  if module_name.is_empty() {
+    Err("empty \"name\" value in moon.mod.json")
+  } else if contains_whitespace(module_name) {
+    Err("invalid \"name\" value in moon.mod.json: contains whitespace")
+  } else {
+    Ok(module_name)
+  }
+}
+
+///|
+fn contains_whitespace(value : String) -> Bool {
+  value.find(" ") is Some(_) ||
+  value.find("\t") is Some(_) ||
+  value.find("\n") is Some(_) ||
+  value.find("\r") is Some(_)
 }
 
 ///|
