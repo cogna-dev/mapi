@@ -44,26 +44,16 @@ fn run_command(args : Array[String], mode : CommandMode) -> Unit {
         }
       }
       let include_module_manifest = mode == Init
-      match resolve_module_name(
-        config.output_dir,
-        include_module_manifest,
-      ) {
+      match resolve_module_name(config.output_dir, include_module_manifest) {
         Ok(module_name) => {
-          let files = generate_project(
-            ir,
-            module_name,
-            include_module_manifest,
-          )
+          let files = generate_project(ir, module_name, include_module_manifest)
           write_project(files, config.output_dir, mode == Generate) catch {
-            err => fail_with_message(
-              "Failed to write project: ",
-              debug_string(err),
-            )
+            err =>
+              fail_with_message("Failed to write project: ", debug_string(err))
           }
         }
-        Err(message) => {
+        Err(message) =>
           fail_with_message("Failed to resolve module name: ", message)
-        }
       }
       write_state(ir, config.spec_path, config.output_dir) catch {
         err => fail_with_message("Failed to write state: ", debug_string(err))
@@ -190,7 +180,9 @@ fn resolve_module_name(
 }
 
 ///|
-fn read_module_name_from_moon_mod(project_dir : String) -> Result[String, String] {
+fn read_module_name_from_moon_mod(
+  project_dir : String,
+) -> Result[String, String] {
   let mod_path = project_dir + "/moon.mod.json"
   if !@fs.path_exists(mod_path) {
     return Err("moon.mod.json not found in " + project_dir)
