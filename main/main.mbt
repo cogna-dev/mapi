@@ -212,7 +212,7 @@ fn parse_module_name_from_moon_mod(raw : String) -> Result[String, String] {
   let mod_config : MoonModConfig = @json.from_json(parsed) catch {
     _ => return Err("missing or invalid \"name\" field in moon.mod.json")
   }
-  let module_name = mod_config.name.trim().to_string()
+  let module_name = mod_config.name.trim()
   if module_name.is_empty() {
     Err("empty \"name\" value in moon.mod.json")
   } else {
