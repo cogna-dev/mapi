@@ -187,9 +187,7 @@ fn read_module_name_from_moon_mod(
   if !@fs.path_exists(mod_path) {
     return Err("moon.mod.json not found in " + project_dir)
   }
-  let raw_result = try {
-    Ok(@fs.read_file_to_string(mod_path))
-  } catch {
+  let raw_result = Ok(@fs.read_file_to_string(mod_path)) catch {
     err => Err("cannot read moon.mod.json: " + debug_string(err))
   }
   let raw = match raw_result {
